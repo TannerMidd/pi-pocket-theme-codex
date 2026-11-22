@@ -1,0 +1,23 @@
+# Codex (light): white ground, an off-white sidebar, near-black ink, and the blue a step deeper for 4.5:1 links.
+mode = "light"
+
+accent = "#0b6fd6"
+selection = "#cfe4fb"
+
+background = "#ffffff"
+dark_background = "#f8f8f8"
+darker_background = "#f6f6f6"
+lighter_background = "#f9f9f9"
+
+foreground = "#1a1c1f"
+dark_foreground = "#6b6c6e"
+light_foreground = "#1a1c1f"
+bright_foreground = "#1a1c1f"
+
+red = "#e02e2a"
+yellow = "#b7791f"
+orange = "#bd5800"
+green = "#00a240"
+cyan = "#0071ea"
+blue = "#001bcb"
+magenta = "#751ed9"

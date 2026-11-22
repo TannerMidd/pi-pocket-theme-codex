@@ -1,0 +1,680 @@
+/*
+ * Codex's layout: the Codex desktop app. One flat window, the sidebar split off by a hairline, quiet 13px chrome in
+ * the system's font, your messages as soft grey bubbles on the right, Pi's answers with no frame, what Pi did as grey
+ * one-line steps ("Read hero.tsx"), and a round message box with a round send button. Only tokens and parts
+ * (docs/extensions/reference/theme-surface.md), plus plain elements inside a part where noted.
+ */
+
+/* ─── Tokens ─── */
+
+:root {
+    /* The app's Inter, the nearest open font to San Francisco, and San Francisco itself in Safari (below). Not
+     * -apple-system, BlinkMacSystemFont, or system-ui here: Chromium maps them to the system's own font on Linux. */
+    --sans: "Pocket Inter", ui-sans-serif, sans-serif;
+    --mono:
+        ui-monospace, "SF Mono", Menlo, "Cascadia Mono", Consolas, "Pocket Mono", "Pocket Nerd Symbols", monospace;
+
+    /* Text: the app's three greys. Quiet text is the foreground at half strength, as Codex has it. */
+    --muted: color-mix(in srgb, var(--body) 52%, var(--bg));
+    --faint: color-mix(in srgb, var(--body) 36%, var(--bg));
+
+    /* Surfaces: the sidebar on the window's own ground, bubbles and fields one see-through step up. */
+    --panel: var(--bg);
+    --desk: var(--o-bg-darker);
+    --card: color-mix(in srgb, var(--body) 4%, var(--bg));
+    --card-2: color-mix(in srgb, var(--body) 7%, var(--bg));
+    --raised: color-mix(in srgb, var(--body) 12%, var(--bg));
+    --bubble: color-mix(in srgb, var(--body) 6%, var(--bg));
+    --field: var(--o-bg-light);
+    --popover: var(--o-bg-light);
+    --hover: color-mix(in srgb, var(--body) 6%, transparent);
+    --pressed: color-mix(in srgb, var(--body) 12%, transparent);
+    --row-on: color-mix(in srgb, var(--body) 8%, transparent);
+    --code-bg: var(--o-bg-dark);
+    --scrim: rgb(0 0 0 / 0.5);
+
+    /* Lines: Codex's 8% hairlines. */
+    --line: color-mix(in srgb, var(--body) 9%, var(--bg));
+    --line-strong: color-mix(in srgb, var(--body) 16%, var(--bg));
+    --edge: color-mix(in srgb, var(--body) 14%, transparent);
+    --hair: color-mix(in srgb, var(--body) 8%, transparent);
+    --hair-2: color-mix(in srgb, var(--body) 16%, transparent);
+
+    /* Monochrome: primary buttons are the text's color, with the ground's color on them. Blue is for links and
+     * focus only. */
+    --accent-fill: var(--text);
+    --accent-ink: var(--bg);
+    --accent-soft: color-mix(in srgb, var(--body) 8%, transparent);
+    --accent-line: color-mix(in srgb, var(--body) 24%, transparent);
+    --focus-ring: color-mix(in srgb, var(--o-accent) 75%, transparent);
+    --brand: var(--text);
+    --spark: var(--muted);
+
+    /* Diffs and status fills, as Codex's editor tints them. */
+    --ok-soft: rgb(64 201 119 / 0.2);
+    --err-soft: rgb(255 103 100 / 0.2);
+
+    /* Code: Codex's own highlighter colors. */
+    --hl-kw: #f67576;
+    --hl-str: #85df7b;
+    --hl-num: #fa994c;
+    --hl-fn: #6dcbf4;
+    --hl-type: #b06dff;
+    --hl-op: #999999;
+    --hl-tag: #3d8dff;
+
+    /* Soft, rounded corners: 8px rows and fields, a 24px message box. */
+    --r-mark: 4px;
+    --r-tag: 6px;
+    --r-seg: 8px;
+    --r-row: 8px;
+    --r-control: 8px;
+    --r-card: 12px;
+    --r-window: 0px;
+    --r-sheet: 16px;
+    --r-float: 16px;
+    --r-bubble: 18px;
+    --r-box: 24px;
+
+    /* One flat window: no gaps or frames between the sidebar and the conversation. */
+    --gap-out: 0px;
+    --gap-in: 0px;
+    --border: 0px;
+    --window-border: transparent;
+    --window-border-active: transparent;
+    --window-ring: none;
+
+    --sh: rgb(0 0 0 / 0.34);
+    --shadow: 0 4px 16px rgb(0 0 0 / 0.05);
+    --pop: 0 0 0 0.5px var(--hair-2), 0 8px 16px -4px var(--sh), 0 24px 48px -16px var(--sh);
+
+    --leading: 1.55;
+
+    /* A narrow thread, and the message box as wide as it. */
+    --transcript-width: clamp(min(640px, 100%), 62%, 800px);
+    --composer-width: calc(var(--transcript-width) + 32px);
+}
+
+/* Safari, on a Mac, an iPhone, or an iPad: San Francisco, as Codex has it. Only WebKit knows this font keyword. */
+@supports (font: -apple-system-body) {
+    :root {
+        --sans: -apple-system, "Pocket Inter", ui-sans-serif, sans-serif;
+    }
+}
+
+:root[data-mode="light"] {
+    --panel: #fcfcfc;
+    --field: #ffffff;
+    --popover: #ffffff;
+    --muted: color-mix(in srgb, var(--body) 64%, var(--bg));
+    --faint: color-mix(in srgb, var(--body) 44%, var(--bg));
+    --bubble: color-mix(in srgb, var(--body) 5%, var(--bg));
+    --hover: color-mix(in srgb, var(--body) 5%, transparent);
+    --row-on: color-mix(in srgb, var(--body) 6%, transparent);
+    --line: color-mix(in srgb, var(--body) 9%, var(--bg));
+    --scrim: rgb(0 0 0 / 0.2);
+    --sh: rgb(0 0 0 / 0.12);
+    --ok-soft: rgb(0 162 64 / 0.14);
+    --err-soft: rgb(186 38 35 / 0.14);
+    --hl-kw: #d53538;
+    --hl-str: #008809;
+    --hl-num: #bd5800;
+    --hl-fn: #0071ea;
+    --hl-type: #751ed9;
+    --hl-op: #666666;
+    --hl-tag: #001bcb;
+}
+
+::selection {
+    background: color-mix(in srgb, var(--o-accent) 32%, transparent);
+}
+
+/* ─── The frame ─── */
+
+[data-part~="app"] {
+    background: var(--bg);
+}
+
+[data-part~="sidebar"] {
+    border-inline-end: 1px solid var(--line);
+    background: var(--panel);
+}
+
+[data-part~="people-panel"] {
+    border-inline-start: 1px solid var(--line);
+}
+
+[data-part~="pane"] {
+    background: var(--bg);
+}
+
+[data-part~="topbar"] {
+    border-bottom: 0;
+    background: var(--bg);
+}
+
+[data-part~="topbar-title"] {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
+}
+
+[data-part~="topbar-sub"] {
+    font-size: 12px;
+    color: var(--muted);
+}
+
+/* ─── The sidebar: plain 30px rows, a time on the right ─── */
+
+[data-part~="rail"] {
+    border-inline-end: 1px solid var(--line);
+    background: var(--panel);
+}
+
+[data-part~="rail-button"] {
+    border-radius: var(--r-row);
+    color: var(--muted);
+}
+
+[data-part~="rail-button"][data-state~="open"] {
+    background: var(--row-on);
+    color: var(--text);
+}
+
+[data-part~="brand-mark"] {
+    color: var(--text);
+}
+
+[data-part~="session-list-title"] {
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: var(--text);
+}
+
+[data-part~="session-search"] {
+    border-color: transparent;
+    border-radius: var(--r-row);
+    background: none;
+    font-size: 13px;
+}
+
+[data-part~="session-search"]:focus-within {
+    border-color: var(--hair-2);
+    background: var(--hover);
+}
+
+[data-part~="session-tabs"] {
+    border-radius: var(--r-row);
+    background: none;
+}
+
+[data-part~="segment-thumb"] {
+    border-radius: var(--r-row);
+    background: var(--row-on);
+    box-shadow: none;
+}
+
+[data-part~="session-group-head"] {
+    font-size: 13px;
+}
+
+[data-part~="session-group-name"] {
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0;
+    text-transform: none;
+    color: var(--muted);
+}
+
+[data-part~="session-group-count"] {
+    color: var(--faint);
+}
+
+/* Times in the sans, as Codex's "4h". */
+[data-part~="session-button"] {
+    --mono: var(--sans);
+    min-height: 30px;
+    border-radius: var(--r-row);
+    font-size: 13px;
+}
+
+[data-part~="session-button"]:not([aria-current="page"]) {
+    --text: var(--body);
+}
+
+[data-part~="session-button"][aria-current="page"] {
+    background: var(--row-on);
+}
+
+@media (hover: hover) {
+    [data-part~="session-button"]:not([aria-current="page"]):hover {
+        background: var(--hover);
+    }
+}
+
+/* A thread at rest shows no square, as Codex's list has none; one that works, waits, or failed keeps it. */
+[data-part~="session-row"][data-state="idle"] [data-part~="session-mark"],
+[data-part~="session-row"][data-state="done"] [data-part~="session-mark"] {
+    visibility: hidden;
+}
+
+/* ─── The thread ─── */
+
+[data-part~="transcript"] {
+    gap: calc(16px * var(--space-y));
+}
+
+/* Your messages: a soft grey bubble on the right, with no name. */
+[data-part~="prompt"] {
+    width: fit-content;
+    max-width: min(76%, 620px);
+    margin-inline-start: auto;
+    padding: 8px 14px;
+    border: 0;
+    border-radius: var(--r-bubble);
+    background: var(--bubble);
+    color: var(--text);
+}
+
+[data-part~="prompt"][data-from="me"] [data-part~="prompt-head"] {
+    display: none;
+}
+
+[data-part~="prompt-text"] {
+    padding-inline-start: 0;
+}
+
+/* Someone else's: on the left, their name above it. */
+[data-part~="prompt"]:not([data-from="me"]) {
+    margin-inline: 0 auto;
+}
+
+[data-part~="prompt-head"] {
+    font-size: 12px;
+    color: var(--muted);
+}
+
+[data-part~="prompt-author"] {
+    font-weight: 600;
+    color: var(--muted);
+}
+
+@media (hover: hover) {
+    [data-part~="prompt"]:hover {
+        background: var(--bubble);
+    }
+}
+
+/* Pi's answers: plain text, no frame. */
+[data-part~="reply"] {
+    color: var(--text);
+}
+
+[data-part~="reply"] :is(h1, h2, h3, h4) {
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: var(--text);
+}
+
+[data-part~="reply"] :is(strong, b) {
+    font-weight: 600;
+    color: var(--text);
+}
+
+[data-part~="reply"] a {
+    color: var(--accent);
+    text-decoration: none;
+}
+
+[data-part~="reply"] a:hover {
+    text-decoration: underline;
+}
+
+[data-part~="reply"] blockquote {
+    border-inline-start: 2px solid var(--line-strong);
+    color: var(--muted);
+}
+
+[data-part~="reply"] :is(th, td) {
+    border-color: var(--line);
+}
+
+[data-part~="inline-code"] {
+    padding: 0.1em 0.35em;
+    border: 0;
+    border-radius: var(--r-mark);
+    background: var(--card-2);
+    color: var(--text);
+    font-size: 0.88em;
+}
+
+[data-part~="code-block"] {
+    border: 1px solid var(--line);
+    border-radius: var(--r-card);
+    background: var(--code-bg);
+}
+
+[data-part~="code-head"] {
+    border-bottom: 0;
+    background: none;
+    font-family: var(--sans);
+    font-size: 12px;
+    color: var(--muted);
+}
+
+[data-part~="reply-actions"] {
+    font-size: 12px;
+    color: var(--muted);
+}
+
+/* ─── What Pi did: grey one-line steps, no frame ─── */
+
+[data-part~="activity"],
+[data-part~="activity"][data-state~="open"] {
+    border-color: transparent;
+    background: none;
+    box-shadow: none;
+}
+
+[data-part~="activity-head"],
+[data-part~="activity"][data-state~="open"] > [data-part~="activity-head"] {
+    min-height: 26px;
+    padding-inline: 0;
+    border-bottom-color: transparent;
+    background: none;
+    font-size: 13px;
+    color: var(--muted);
+}
+
+@media (hover: hover) {
+    [data-part~="activity-head"]:hover {
+        background: none;
+        color: var(--text);
+    }
+}
+
+/* Steps line up with the group's words, with no rule and no marks: "Read hero.tsx", one grey line each. A step
+ * that failed, waits, or was stopped keeps its mark, before its line. 24px: the chevron's 14px and its 10px gap. */
+[data-part~="timeline"] {
+    --timeline-x: 0px;
+    --step-mark-size: 0px;
+    --step-gap: 6px;
+    padding-inline: 24px 0;
+}
+
+[data-part~="timeline"]::before {
+    display: none;
+}
+
+[data-part~="step-mark"] {
+    display: none;
+}
+
+[data-part~="tool-call"]:is([data-state="failed"], [data-state="waiting"], [data-state="denied"], [data-state="stopped"])
+    [data-part~="step-mark"] {
+    display: grid;
+    width: 15px;
+    height: 15px;
+    box-shadow: none;
+    font-size: 9px;
+}
+
+/* The words of a step's line in the app's sans, the verb semibold, as "Read" and "Edited" are in Codex. */
+[data-part~="step-head"] {
+    --mono: var(--sans);
+    min-height: 26px;
+    font-size: 13px;
+    color: var(--muted);
+}
+
+@media (hover: hover) {
+    [data-part~="step-head"]:hover {
+        background: none;
+        --muted: var(--text);
+    }
+}
+
+[data-part~="step-label"] {
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: capitalize;
+    color: var(--muted);
+}
+
+[data-part~="step-head"] > * {
+    font-size: 13px;
+}
+
+/* A step at work: its verb shimmers, as Codex's does. */
+:root:not([data-motion="reduced"]) [data-part~="tool-call"][data-state="running"] [data-part~="step-label"] {
+    background: linear-gradient(90deg, var(--muted) 30%, var(--text) 50%, var(--muted) 70%) 0 0 / 300% 100%;
+    background-clip: text;
+    color: transparent;
+    animation: codex-shimmer 1.6s linear infinite;
+}
+
+@keyframes codex-shimmer {
+    from {
+        background-position: 100% 0;
+    }
+
+    to {
+        background-position: 0 0;
+    }
+}
+
+[data-part~="thinking"] [data-part~="step-detail"] {
+    color: var(--muted);
+}
+
+/* Inside a step (plain elements): the command and its output in grey boxes. */
+[data-part~="step-detail"] pre {
+    border: 1px solid var(--line);
+    border-radius: var(--r-control);
+    background: var(--code-bg);
+}
+
+[data-part~="diff"] {
+    border-color: var(--line);
+    border-radius: var(--r-control);
+}
+
+[data-part~="live-line"] {
+    font-size: 13px;
+    color: var(--muted);
+}
+
+/* ─── The message box: round, raised a little, its buttons inside ─── */
+
+[data-part~="message-box"] {
+    border: 0;
+    border-radius: var(--r-box);
+    background: var(--field);
+    box-shadow:
+        0 0 0 1px var(--hair),
+        0 4px 16px rgb(0 0 0 / 0.06);
+}
+
+[data-part~="message-box"]:focus-within {
+    border: 0;
+    box-shadow:
+        0 0 0 1px var(--hair-2),
+        0 4px 16px rgb(0 0 0 / 0.08);
+}
+
+[data-part~="message-box"] textarea::placeholder {
+    color: var(--muted);
+}
+
+[data-part~="composer-button"] {
+    border-color: transparent;
+    border-radius: var(--r-pill);
+    color: var(--muted);
+}
+
+@media (hover: hover) {
+    [data-part~="composer-button"]:hover {
+        background: var(--hover);
+        color: var(--text);
+    }
+}
+
+[data-part~="model-chip"] {
+    --accent: var(--muted);
+    border: 0;
+    border-radius: var(--r-pill);
+    background: none;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--muted);
+}
+
+@media (hover: hover) {
+    [data-part~="model-chip"]:hover {
+        background: var(--hover);
+        color: var(--text);
+    }
+}
+
+[data-part~="plan-chip"][aria-pressed="true"] {
+    border-color: transparent;
+    background: var(--row-on);
+    color: var(--text);
+}
+
+/* Send: a round button, grey until there is something to send, then the text's color. */
+[data-part~="send-button"] {
+    border: 0;
+    border-radius: var(--r-pill);
+    background: color-mix(in srgb, var(--body) 30%, var(--field));
+    color: var(--field);
+}
+
+[data-part~="send-button"][data-state="ready"] {
+    background: var(--text);
+    color: var(--bg);
+}
+
+[data-part~="stop-button"] {
+    border-radius: var(--r-pill);
+}
+
+[data-part~="status-line"] {
+    font-size: 12px;
+    color: var(--muted);
+}
+
+/* ─── The home screen ─── */
+
+/* Codex's empty thread: a small mark over one large line, centered, and nothing else. */
+[data-part~="home"] {
+    --mono: var(--sans);
+}
+
+[data-part~="home-facts"] {
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    border: 0;
+    background: none;
+    text-align: center;
+}
+
+/* The π, drawn small: a mark, not a banner. Its block letters keep the app's mono font. */
+[data-part~="home-logo"] {
+    font-family: "Pocket Mono", monospace;
+    font-size: 4.5px;
+    line-height: 1;
+    color: var(--text);
+}
+
+[data-part~="home-title"] {
+    font-family: var(--sans);
+    font-size: 26px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: var(--text);
+}
+
+[data-part~="home-title"] * {
+    font-weight: inherit;
+    color: inherit;
+}
+
+[data-part~="home-fact"],
+[data-part~="home-colors"] {
+    display: none;
+}
+
+/* Its buttons: Codex's suggestion cards. */
+[data-part~="home-actions"] {
+    justify-content: center;
+}
+
+[data-part~="home-actions"] .button {
+    border: 1px solid var(--line);
+    border-radius: var(--r-card);
+    background: var(--card);
+    color: var(--body);
+    font-weight: 500;
+}
+
+[data-part~="home-actions"] .button.primary {
+    border-color: transparent;
+    background: var(--accent-fill);
+    color: var(--accent-ink);
+}
+
+[data-part~="home-heading"] {
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0;
+    text-transform: none;
+    color: var(--muted);
+}
+
+[data-part~="home-recent-row"] {
+    border-radius: var(--r-row);
+    font-size: 13px;
+}
+
+/* ─── Sheets, menus, the launcher: Codex's popovers ─── */
+
+[data-part~="sheet"],
+[data-part~="launcher"],
+[data-part~="menu"] {
+    border: 0;
+    background: var(--popover);
+    box-shadow: var(--pop);
+}
+
+[data-part~="sheet-head"] {
+    border-bottom: 0;
+}
+
+[data-part~="launcher-row"] {
+    border-radius: var(--r-row);
+}
+
+[data-part~="launcher-row"][aria-selected="true"] {
+    background: var(--row-on);
+}
+
+[data-part~="notice"] {
+    border: 0;
+    background: var(--popover);
+    box-shadow: var(--pop);
+}
+
+/* ─── Phones ─── */
+
+@media (max-width: 699px) {
+    [data-part~="prompt"] {
+        max-width: 85%;
+    }
+
+    [data-part~="home-title"] {
+        font-size: 22px;
+    }
+}

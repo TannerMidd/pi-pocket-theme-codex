@@ -1,0 +1,6 @@
+/*
+ * Codex: Pi Pocket in the look of the Codex desktop app. layout.css is the look and the layout; colors.toml and
+ * colors-light.toml are the dark and light palettes. It ships no fonts: it asks for the system's own (San Francisco on
+ * a Mac, Segoe UI on Windows) and falls back to the app's Inter and JetBrains Mono elsewhere.
+ */
+@import "layout.css";

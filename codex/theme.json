@@ -1,0 +1,8 @@
+{
+    "themeApi": 1,
+    "name": "Codex",
+    "description": "The Codex desktop app: neutral greys, system type, your messages as soft bubbles, quiet one-line tool calls, and a round message box.",
+    "author": "tanner",
+    "version": "1.0.0",
+    "minPocket": "0.20.0"
+}

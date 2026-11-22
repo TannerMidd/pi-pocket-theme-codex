@@ -1,0 +1,23 @@
+# Codex (dark): the desktop app's neutral greys, near-black ground, white text, and its blue for links and focus.
+mode = "dark"
+
+accent = "#339cff"
+selection = "#26405c"
+
+background = "#181818"
+dark_background = "#212121"
+darker_background = "#000000"
+lighter_background = "#212121"
+
+foreground = "#ffffff"
+dark_foreground = "#8c8c8c"
+light_foreground = "#cdcdcd"
+bright_foreground = "#ffffff"
+
+red = "#ff6764"
+yellow = "#f5b544"
+orange = "#fa994c"
+green = "#40c977"
+cyan = "#6dcbf4"
+blue = "#3d8dff"
+magenta = "#b06dff"
